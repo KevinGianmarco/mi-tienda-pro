@@ -3,7 +3,7 @@ import Store from './Store';
 import Admin from './Admin';
 import Login from './Login';
 import { Toaster } from 'react-hot-toast'; // Importación necesaria para las burbujas de texto
-
+import Success from './Success';
 // 1. Definimos la función de protección fuera de App para que esté ordenada
 const ProtectedRoute = ({ children }) => {
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
@@ -32,6 +32,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/success" element={<Success />} />
       </Routes>
     </>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Store() {
   const [products, setProducts] = useState([]);
@@ -11,6 +12,7 @@ function Store() {
   const [selectedProduct, setSelectedProduct] = useState(null); 
   const [loading, setLoading] = useState(true);
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const navigate = useNavigate();
 
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem('cart_items');
@@ -62,6 +64,34 @@ useEffect(() => {
 
   const total = cart.reduce((acc, item) => acc + item.price, 0);
 
+
+      // --- NUEVAS FUNCIONES DE COMPRA WEB ---
+
+    // 1. Quitar una unidad o eliminar producto
+    const removeFromCart = (productId) => {
+      setCart(prevCart => {
+        const index = prevCart.findIndex(item => item._id === productId);
+        if (index === -1) return prevCart;
+        const newCart = [...prevCart];
+        newCart.splice(index, 1);
+        return newCart;
+      });
+    };
+
+    // 2. Función de Finalizar con Limpieza
+            const finalizarCompraWeb = () => {
+          // 1. Prepara el mensaje
+          const listaProductos = cart.map(i => `• ${i.name} (S/. ${i.price})`).join('%0A');
+          const mensajeWA = `https://wa.me/51965232758?text=¡Hola!%20He%20realizado%20un%20pedido%20web:%0A${listaProductos}%0A%0A*Total:%20S/.%20${total.toFixed(2)}*`;
+          
+          // 2. Abre WhatsApp
+          window.open(mensajeWA, '_blank');
+          
+          // 3. Limpieza de Compra Web
+          clearCart(); 
+          setShowCartDetail(false); 
+        };
+
   return (
     <div className="min-h-screen bg-gray-100 relative">
       
@@ -86,6 +116,16 @@ useEffect(() => {
             <button onClick={() => setShowCartDetail(true)} className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:bg-blue-700 transition-colors">
               🛒 ({cart.length})
             </button>
+
+            {/* --- BOTÓN VACIAR RECUPERADO --- */}
+            {cart.length > 0 && (
+              <button 
+                onClick={clearCart} 
+                className="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-100 transition-colors"
+              >
+                Vaciar
+              </button>
+            )}
           </div>
         </div>
       </nav>
@@ -101,29 +141,86 @@ useEffect(() => {
         )}
 
         {/* Modal Carrito */}
+       {/* --- MODAL DE COMPRA WEB PRO --- */}
         {showCartDetail && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[110] p-4">
-            <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-              <div className="flex justify-between mb-6">
-                <h2 className="text-2xl font-black">Tu Compra 🛒</h2>
-                <button onClick={() => setShowCartDetail(false)} className="text-gray-400 hover:text-black text-xl">✕</button>
-              </div>
-              <div className="max-h-60 overflow-y-auto mb-4 text-sm">
-                {cart.map((item, index) => (
-                  <div key={index} className="flex justify-between py-2 border-b">
-                    <span>{item.name}</span>
-                    <span className="font-bold">S/. {item.price.toFixed(2)}</span>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[110] p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[3rem] p-10 max-w-lg w-full shadow-2xl relative">
+              
+              <button onClick={() => setShowCartDetail(false)} className="absolute top-8 right-8 text-gray-400 hover:text-black transition-colors">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+
+              <h2 className="text-3xl font-black text-gray-900 mb-8 flex items-center gap-3">
+                Tu Pedido Web <span className="text-xl opacity-50">🛒</span>
+              </h2>
+
+              {/* Lista de productos con scroll suave */}
+              <div className="max-h-[35vh] overflow-y-auto mb-8 pr-2 custom-scrollbar">
+                {cart.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400 text-lg font-medium">El carrito está vacío</p>
                   </div>
-                ))}
+                ) : (
+                  cart.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center py-4 border-b border-gray-50 group">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-gray-800 text-lg">{item.name}</span>
+                        <span className="text-blue-600 font-bold">S/. {item.price.toFixed(2)}</span>
+                      </div>
+                      
+                      <button 
+                        onClick={() => removeFromCart(item._id)}
+                        className="bg-red-50 text-red-500 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
-              <div className="flex justify-between text-2xl font-black border-t pt-4">
-                <span>Total:</span>
-                <span>S/. {total.toFixed(2)}</span>
+
+              {/* Resumen de Total */}
+              <div className="bg-gray-50 rounded-3xl p-6 mb-8">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm font-black uppercase tracking-widest">Total a pagar</span>
+                  <span className="text-4xl font-black text-gray-900 tracking-tighter">S/. {total.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* --- BOTONES DE ACCIÓN LADO A LADO --- */}
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-3">
+                  {/* BOTÓN WEB: PAGO CON TARJETA */}
+                  <button 
+                    disabled={cart.length === 0}
+                    onClick={() => {
+                      clearCart(); // Limpiamos la web como si el pago fuera real
+                      navigate('/success'); // Mandamos a la página de éxito
+                    }}
+                    className="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    💳 Tarjeta
+                  </button>
+                  {/* BOTÓN WHATSAPP: CONFIRMAR PEDIDO */}
+                  <button 
+                    disabled={cart.length === 0}
+                    onClick={finalizarCompraWeb}
+                    className="flex-1 bg-[#25D366] text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-[#20ba5a] transition-all active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    WhatsApp ✅
+                  </button>
+                </div>
+                
+                <button 
+                  onClick={() => setShowCartDetail(false)}
+                  className="w-full text-gray-400 font-bold hover:text-gray-600 transition-colors py-2 text-sm uppercase tracking-widest"
+                >
+                  Continuar Comprando
+                </button>
               </div>
             </div>
           </div>
         )}
-
         {/* BUSCADOR */}
         <div className="max-w-md mx-auto mb-8">
           <input
@@ -266,6 +363,19 @@ useEffect(() => {
           <span className="pl-2">¿Dudas? Chatea con nosotros</span>
         </span>
       </a>
+
+      {/* --- BOTÓN FLOTANTE DE FINALIZAR COMPRA --- */}
+      {cart.length > 0 && (
+        <button 
+          onClick={() => setShowCartDetail(true)}
+          className="fixed bottom-28 right-8 bg-blue-600 text-white p-5 rounded-full shadow-2xl z-[100] animate-bounce hover:scale-110 transition-all flex items-center gap-3 border-4 border-white"
+        >
+          <span className="font-black text-sm pr-1">PAGAR AHORA</span>
+          <div className="bg-white text-blue-600 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">
+            {cart.length}
+          </div>
+        </button>
+      )}
     </div>
   );
 }
