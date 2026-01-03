@@ -59,4 +59,36 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Reemplaza la línea 62 por esta
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+router.post('/create-checkout-session', async (req, res) => {
+    try {
+        const { items } = req.body;
+
+        const line_items = items.map((item) => ({
+            price_data: {
+                currency: 'pen',
+                product_data: { name: item.name },
+                unit_amount: Math.round(item.price * 100),
+            },
+            quantity: 1,
+        }));
+
+        // ... código anterior de la sesión ...
+
+            const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items,
+            mode: 'payment',
+            success_url: 'http://localhost:5173/success',
+            cancel_url: 'http://localhost:5173/',
+            });
+
+// ✅ CAMBIO IMPORTANTE: Envía 'session' completa, no solo el { id }
+res.json(session);
+    } catch (error) {
+        console.error("DETALLE DEL ERROR EN TERMINAL:", error.message); // Mira tu terminal negra
+        res.status(500).json({ error: error.message });
+    }
+});
 module.exports = router;

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
 
 function Store() {
   const [products, setProducts] = useState([]);
@@ -193,10 +194,29 @@ useEffect(() => {
                   {/* BOTÓN WEB: PAGO CON TARJETA */}
                   <button 
                     disabled={cart.length === 0}
-                    onClick={() => {
-                      clearCart(); // Limpiamos la web como si el pago fuera real
-                      navigate('/success'); // Mandamos a la página de éxito
-                    }}
+                    // Reemplaza el bloque onClick actual:
+                        onClick={async () => {
+                              try {
+                                // 1. Llamada al backend para crear la sesión
+                                const response = await axios.post('http://localhost:5000/api/products/create-checkout-session', {
+                                  items: cart
+                                });
+
+                                // 2. Extraemos la URL de la sesión que genera Stripe
+                                const { url } = response.data;
+
+                                if (url) {
+                                  // 3. Redirección directa (La forma moderna y compatible)
+                                  window.location.href = url;
+                                } else {
+                                  alert("No se pudo obtener la URL de pago.");
+                                }
+
+                              } catch (error) {
+                                console.error("Error en el proceso:", error);
+                                alert("Revisa que tu servidor esté encendido en el puerto 5000.");
+                              }
+                            }}
                     className="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2"
                   >
                     💳 Tarjeta
