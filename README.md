@@ -1,31 +1,32 @@
-# 🚀 Mi Tienda Pro - Full Stack E-commerce
+# 🛒 Mi Tienda Pro - E-commerce Full-Stack
 
-**Mi Tienda Pro** es una plataforma de comercio electrónico moderna y funcional desarrollada con el **MERN Stack**. El sistema ofrece una experiencia de compra fluida para el usuario y un panel de control robusto para el administrador.
+¡Bienvenido a **Mi Tienda Pro**! Este es un proyecto de comercio electrónico completo que integra un catálogo de productos dinámico, gestión de carrito de compras y una pasarela de pagos real con Stripe.
 
+## 🚀 Funcionalidades Principales
 
-
-## ✨ Características Principales
-
-### 🛒 Experiencia del Cliente
-* **Interfaz Moderna**: Diseño limpio y responsive utilizando Tailwind CSS.
-* **Skeletons de Carga**: Animaciones de carga que mejoran la percepción de velocidad.
-* **Buscador y Filtros**: Filtrado por categorías con sincronización automática de datos en tiempo real.
-* **Detalle de Producto**: Modal interactivo con descripciones completas y stock dinámico.
-* **Contacto Directo**: Botón flotante de WhatsApp con mensajes preconfigurados por producto.
-
-### ⚙️ Panel de Administración
-* **Gestión CRUD**: Crear, editar y eliminar productos desde una interfaz privada.
-* **Control de Stock**: Indicadores visuales de inventario (disponible/agotado) con bloqueo de botones de compra.
-* **Seguridad**: Acceso protegido al panel mediante login y persistencia de sesión con LocalStorage.
+- **Catálogo Dinámico**: Visualización de productos obtenidos desde una base de datos MongoDB.
+- **Buscador y Filtros**: Filtrado de productos por nombre y por categorías (Electrónica, Muebles, Audio, etc.).
+- **Carrito de Compras**: Gestión de estado global para agregar, eliminar y calcular el total de productos.
+- **Pasarela de Pagos**: Integración completa con **Stripe API** para procesar pagos con tarjeta de forma segura.
+- **Flujo de Éxito**: Página de confirmación que vacía automáticamente el carrito tras una compra exitosa mediante hooks de React.
 
 ## 🛠️ Tecnologías Utilizadas
 
-* **Frontend**: React.js, Vite, Tailwind CSS, Axios, React Router.
-* **Backend**: Node.js, Express.js.
-* **Base de Datos**: MongoDB.
+- **Frontend**: React.js, Tailwind CSS, React Router.
+- **Backend**: Node.js, Express.js.
+- **Base de Datos**: MongoDB.
+- **Pagos**: Stripe API.
+- **Gestión de Versiones**: Git y GitHub (siguiendo mejores prácticas de seguridad).
 
-## 📦 Instalación y Uso
+## 🔐 Seguridad y Mejores Prácticas
 
-1. **Clonar repositorio:**
+En este proyecto se implementaron estándares profesionales de seguridad:
+- **Variables de Entorno**: Uso de archivos `.env` para proteger claves privadas de API (Secret Keys).
+- **Protección de Datos**: Configuración de `.gitignore` para evitar la exposición de credenciales en repositorios públicos.
+- **Arquitectura Limpia**: Elevación de estado (State Lifting) en React para una comunicación fluida entre componentes.
+
+## 📦 Instalación y Configuración
+
+1. **Clonar el repositorio**:
    ```bash
-   git clone [https://github.com/tu-usuario/mi-tienda-pro.git](https://github.com/tu-usuario/mi-tienda-pro.git)
+   git clone [https://github.com/KevinGianmarco/mi-tienda-pro.git](https://github.com/KevinGianmarco/mi-tienda-pro.git)
